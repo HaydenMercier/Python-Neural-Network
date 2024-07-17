@@ -7,8 +7,6 @@ xPredicted = np.array(([0, 0, 1]), dtype=float)
 X = X/np.amax(X, axis=0)
 xPredicted = xPredicted/np.amax(xPredicted, axis=0)
 
-lossFile = open("SumSquaredLossList.csv", "w")
-
 class Neural_Network (object):
     def __init__(self):
         self.inputLayerSize = 3
@@ -17,10 +15,13 @@ class Neural_Network (object):
     
         self.W1 = np.random.randn(self.inputLayerSize, self.hiddenLayerSize)
         self.W2 = np.random.randn(self.hiddenLayerSize, self.outputLayerSize)
+
+        self.lossFile = open("SumSquaredLossList.csv", "a")
+
         
     def feedForward(self, X):
         self.z = np.dot(X, self.W1)
-        self.z2 = self.activatonSigmoid(self.z)
+        self.z2 = self.activationSigmoid(self.z)
         self.z3 = np.dot(self.z2, self.W2)
         o = self.activationSigmoid(self.z3)
         return o
@@ -42,8 +43,10 @@ class Neural_Network (object):
     
     def activationSigmoidPrime(self, s):
         return s * (1 - s)
+    
     def saveSumSquaredLossList(self, i, error):
-        lossFile.write(str(i) + ", " + str(error.todolist())+"\n")
+        self.lossFile.write(str(i) + ", " + str(error.tolist())+"\n")
+        self.lossFile.flush()
 
     def saveWeights(self):
         np.savetxt("weightsLayer1.txt", self.W1, fmt = "%s")
@@ -53,8 +56,12 @@ class Neural_Network (object):
         print("Predicted XOR output data based on trained weights: ")
         print("Expected (X1 - X3): \n" + str(xPredicted))
         print("Output (Y1): \n" + str(self.feedForward(xPredicted)))
+
+    def closeFile(self):
+        self.lossFile.close()
+
 myNeuralNetwork = Neural_Network()
-trainingEpochs = 1000
+trainingEpochs = 1000000
 for i in range(trainingEpochs):
     print("Epoch # " + str(i) + "\n")
     print("Network Input: \n" + str(X))
@@ -69,3 +76,4 @@ for i in range(trainingEpochs):
 
 myNeuralNetwork.saveWeights()
 myNeuralNetwork.predictOutput()
+myNeuralNetwork.closeFile()
